@@ -1,18 +1,34 @@
+"""
+Main API router - combines all endpoint routers
+"""
 from fastapi import APIRouter
-from app.config import settings
-from app.api.endpoints import auth, device, health, links
+from app.api.endpoints import auth, health, device, links
 
 
-router = APIRouter()
+api_router = APIRouter()
 
+# Public endpoints (no auth)
+api_router.include_router(
+    health.router,
+    tags=["health"]
+)
 
-@router.get('/health', tags=['Health'])
-async def health_check():
-    """
-    Health check endpoint to verify that the API is running
-    """
-    return {
-        'status': 'healthy',
-        'app_name': settings.APP_NAME,
-        'environment': settings.ENV
-    }
+# Auth endpoints
+api_router.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
+# Protected endpoints (require auth)
+# api_router.include_router(
+#     device.router,
+#     prefix="/devices",
+#     tags=["devices"]
+# )
+
+# api_router.include_router(
+#     links.router,
+#     prefix="/links",
+#     tags=["links"]
+# )
